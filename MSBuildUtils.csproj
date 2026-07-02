@@ -2,15 +2,41 @@
 
 	<PropertyGroup>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<TargetFramework>netstandard2.0</TargetFramework>
 
 		<OutDir>_bin\$(Configuration)\</OutDir>
 		<IntermediateOutputPath>_obj\$(Configuration)\</IntermediateOutputPath>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.7.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="_bin\**" />
+		<Compile Remove="_obj\**" />
+		<EmbeddedResource Remove="_bin\**" />
+		<EmbeddedResource Remove="_obj\**" />
+		<None Remove="_bin\**" />
+		<None Remove="_obj\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove=".gitignore" />
+		<None Remove="LICENSE" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="README.md">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>
