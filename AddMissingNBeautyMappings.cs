@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Framework;
+using Microsoft.Build.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -27,6 +27,8 @@ namespace MSBuildUtils
         public string MappingsFilePath { get; set; }
         [Required]
         public string ScanDirectory { get; set; }
+        [Required]
+        public bool UseAllDependencies { get; set; }
 
         public override bool Execute()
         {
@@ -37,33 +39,14 @@ namespace MSBuildUtils
                     $"project.assets.json not found");
                 return false;
             }
-            var assetsJson = JObject.Parse(File.ReadAllText(ProjectAssetsFile));
-            if (assetsJson == null)
-            {
-                Log.LogError(
-                    $"Unable to read project.assets.json");
-                return false;
-            }
 
-            var firstTarget =
-                    assetsJson["targets"].FirstOrDefault();
-
-            var nodes = ((JProperty)firstTarget).Value.Children()
-                    .Select(p => ((JProperty)p).Name);
-
-            var dependencyList = new List<string>();
-            foreach (var node in nodes)
-            {
-                dependencyList.Add(node.ToString().Split('/')[0] + ".dll");
-            }
-            Log.LogMessage(MessageImportance.High, $"Found {dependencyList.Count} dependencies, processing...");
-
-            var dirInfo = new DirectoryInfo(ScanDirectory);
-            if (!dirInfo.Exists)
+            var libsDir = new DirectoryInfo(ScanDirectory);
+            if (!libsDir.Exists)
             {
                 Log.LogError("ScanDirectory does not exist");
                 return false;
             }
+
             var mappingsFile = new FileInfo(MappingsFilePath);
             if (!mappingsFile.Exists)
             {
@@ -71,10 +54,41 @@ namespace MSBuildUtils
                 return false;
             }
 
-            Log.LogMessage("Reading JSON...");
+            var dependencyList = new List<string>();
+            if (!UseAllDependencies)
+            {
+
+                var assetsJson = JObject.Parse(File.ReadAllText(ProjectAssetsFile));
+                if (assetsJson == null)
+                {
+                    Log.LogError(
+                        $"Unable to read project.assets.json");
+                    return false;
+                }
+
+                var firstTarget =
+                    assetsJson["targets"].FirstOrDefault();
+
+                var nodes = ((JProperty)firstTarget).Value.Children()
+                    .Select(p => ((JProperty)p).Name);
+
+                foreach (var node in nodes)
+                {
+                    dependencyList.Add(node.ToString().Split('/')[0] + ".dll");
+                }
+                Log.LogMessage(MessageImportance.High, $"Found {dependencyList.Count} dependencies, processing...");
+            }
+            else
+            {
+                dependencyList.AddRange(libsDir.GetDirectories()
+                    .Where(d => d.Name.Contains(".dll"))
+                    .Select(d => d.Name));
+            }
+
+            Log.LogMessage("Reading mappings JSON...");
             var json = JObject.Parse(File.ReadAllText(MappingsFilePath));
 
-            Log.LogMessage("Parsing JSON...");
+            Log.LogMessage("Parsing mappings JSON...");
             var mappingNode = json
                 ["runtimeOptions"]?
                 ["configProperties"]?
@@ -88,7 +102,7 @@ namespace MSBuildUtils
 
             Log.LogMessage("Creating dependency list...");
 
-            var innerDirectories = dirInfo
+            var innerDirectories = libsDir
                 .GetDirectories()
                 .Where(x => dependencyList.Contains(x.Name)).ToList();
 
