@@ -38,11 +38,15 @@ of either `True` or `--srmode`, depending on the project (or God knows on what e
 
 # Task Parameters
 
-- ProjectAssetsFile:string
+- `ProjectAssetsFile`:string
+  
   Full path to `project.assets.json` (usually in the `obj` directory).
-- MappingsFilePath:string
+- `MappingsFilePath`:string
+  
   Full path to `%project_name%.runtimeconfig.json` in the output directory.
-- ScanDirectory:string
+- `ScanDirectory`:string
+  
   Path to shared libraries root.
-- UseAllDependencies:bool
+- `UseAllDependencies`:bool
+  
   If true, instead of searching for dependencies mentioned in `project.assets.json`, map all dlls found in `ScanDirectory`.
