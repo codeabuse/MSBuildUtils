@@ -27,7 +27,22 @@ in obj folder and updates the mapping in `*.runtimeconfig.json`.
         Condition="'$(DisableBeauty)' == 'False' And ('$(BeautySharedRuntimeMode)' == 'True' Or '$(BeautySharedRuntimeMode)' == '--srmode')"
         AfterTargets="NetBeautyOnBuild_Fx">
     <AddMissingNBeautyMappings MappingsFilePath="$(OutDir)$(MSBuildProjectName).runtimeconfig.json"
-                                ScanDirectory="$(BaseOutputPath)SharedLibs\"
-                                ProjectAssetsFile="$(BaseIntermediateOutputPath)project.assets.json" />
+                               ScanDirectory="$(BaseOutputPath)SharedLibs\"
+                               ProjectAssetsFile="$(BaseIntermediateOutputPath)project.assets.json"
+                               UseAllDependencies="False" />
 </Target>
 ```
+
+Mind that when `BeautySharedRuntimeMode` is enabled, the property itself might have the value 
+of either `True` or `--srmode`, depending on the project (or God knows on what else).
+
+# Task Parameters
+
+- ProjectAssetsFile:string
+  Full path to `project.assets.json` (usually in the `obj` directory).
+- MappingsFilePath:string
+  Full path to `%project_name%.runtimeconfig.json` in the output directory.
+- ScanDirectory:string
+  Path to shared libraries root.
+- UseAllDependencies:bool
+  If true, instead of searching for dependencies mentioned in `project.assets.json`, map all dlls found in `ScanDirectory`.
