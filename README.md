@@ -1,6 +1,6 @@
 ﻿
-A helper task to fix missing dependency mappings when NetBeauty2
-is applied with shared runtime mode is enabled.
+A helper task to fix missing dependency mappings when the NetBeauty2
+is applied with Shared Runtime Mode.
 
 For more info, read my issue report and discussion: https://github.com/nulastudio/NetBeauty2/issues/92.
 
