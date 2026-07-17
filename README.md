@@ -50,3 +50,4 @@ of either `True` or `--srmode`, depending on the project (or God knows on what e
 - `UseAllDependencies` :bool
   
   If true, instead of searching for dependencies mentioned in `project.assets.json`, map all dlls found in `ScanDirectory`.
+> ❗ Use in case if generated `project.assets.json` does not contain all dependencies (VS 2022 may easily lose transient dependencies beneath certain depth). 
